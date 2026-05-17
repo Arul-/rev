@@ -2,12 +2,32 @@
 
 Rev is an automatic second-opinion hook for Codex `/goal`.
 
-Codex builds. Rev checks whether the goal is actually done.
+**Codex says "done." Rev checks whether the goal is actually done.**
+
+That is the selling point.
+
+Autonomous coding agents can pass tests, write a confident final message, and
+still miss what the user asked for. Rev closes that trust gap by reviewing the
+original goal against the actual evidence: git diff, tests, deterministic
+validators, recent run memory, and a second-opinion reviewer.
+
+The output is not just a code review. It is a goal-satisfaction verdict:
+
+```text
+Goal satisfied: yes/no
+Drift: none/low/medium/high
+Decision path: Intent -> Observation -> Decision -> Recovery
+Recovery prompt: the exact prompt to continue if the run drifted
+```
 
 ## What It Does
 
 Rev is a small Bun CLI plus local inspector that can run at the end of a Codex
-`/goal` session and produce a trust report.
+`/goal` session and answer the question that matters:
+
+```text
+Did this autonomous run actually satisfy the user's goal?
+```
 
 The current version:
 - read the goal/spec from `.rev/goal.md`
@@ -105,6 +125,11 @@ The required completion check is:
 
 The latest dogfood run on this repo produced `.rev/report.md` with
 `Goal satisfied: yes`.
+
+On a clean tree, `.rev/validators.json` may warn that there are no reviewable
+changes outside `.rev/`. That is expected after everything is committed. The
+selling-point verdict is in `.rev/report.md`: whether the goal is satisfied,
+whether drift was detected, and whether a recovery prompt is needed.
 
 ## Reviewer Backends
 
