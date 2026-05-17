@@ -1,0 +1,12 @@
+{
+  "name": "rev",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "rev": "./bin/rev"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

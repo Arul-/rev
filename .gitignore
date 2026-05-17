@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.env
+.rev/diff.patch
+.rev/test-output.txt
+.rev/report.md
+.rev/recovery-prompt.md

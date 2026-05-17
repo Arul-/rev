@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+console.error("Rev is not implemented yet. Run Codex /goal against SPEC.md.");
+process.exit(1);
