@@ -2,8 +2,8 @@
 
 Build Rev as a Bun CLI using `SPEC.md`, `AGENTS.md`, and `wiki/`.
 
-Rev adds a second-opinion reviewer to Codex `/goal`, so autonomous runs come
-back with a trust report instead of just a diff.
+Rev is a second-opinion reviewer for Codex `/goal` that catches drift and
+hallucination, then writes the recovery prompt to get the run back on track.
 
 ## Bootstrap Rule
 
@@ -14,6 +14,7 @@ The first successful bootstrap means:
 - `bun test` passes
 - `./bin/rev check` runs
 - `.rev/report.md` is produced
+- `./bin/rev serve` shows the latest Rev state in a browser
 
 ## Dogfood Rule
 
@@ -82,3 +83,22 @@ using `.rev/recovery-prompt.md`.
 - Includes recent memory entries in future reviewer prompts.
 - Stores Codex's concise interpretation of what the user actually asked.
 - Does not store raw diffs, raw prompts, or text inside `<private>` blocks.
+
+### Milestone 10: Always-On Inspector
+
+- Adds `./bin/rev serve`.
+- Serves a local dashboard over `.rev/` artifacts.
+- Auto-refreshes while Codex is working.
+- Shows goal, interpreted goal, verdict, drift/hallucination warnings,
+  validators, tests, recovery prompt, run history, and decision paths.
+- `./bin/rev check` should start or reuse the dashboard when possible, but
+  report generation must still work if the dashboard cannot start.
+
+### Milestone 11: Portable Decision Paths
+
+- Extracts decision paths from reviews.
+- Writes `.rev/decisions.jsonl`.
+- Supports `./bin/rev search <query>` over decision paths.
+- Shows decision paths in `./bin/rev serve`.
+- Lets the user copy a decision path as Markdown for another repo, session, or
+  wiki.

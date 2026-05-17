@@ -21,6 +21,7 @@ Test:
 - memory JSONL append
 - recent memory inclusion in reviewer prompt
 - Codex-interpreted goal stored in memory and review JSON
+- decision paths are written, searchable, and copyable as Markdown
 
 ## Dogfood Scenarios
 
@@ -77,3 +78,31 @@ Expected:
 - each memory entry includes `goal_interpretation`
 - the second reviewer prompt includes the first run's compact memory entry
 - report notices repeated unresolved findings when relevant
+
+### Dashboard Demo
+
+Run:
+
+```bash
+./bin/rev serve
+```
+
+Expected:
+- prints a localhost URL
+- page loads before any review exists
+- page updates after `./bin/rev check`
+- goal, interpreted goal, verdict, drift warnings, validators, tests, recovery
+  prompt, run history, and decision paths are visible without opening raw files
+
+### Decision Path Search
+
+Run:
+
+```bash
+./bin/rev search drift
+```
+
+Expected:
+- searches `.rev/decisions.jsonl`
+- returns matching decision paths
+- includes copyable Markdown for each match

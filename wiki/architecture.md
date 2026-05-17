@@ -47,6 +47,7 @@ Artifacts:
 .rev/report.md
 .rev/recovery-prompt.md
 .rev/memory.jsonl
+.rev/decisions.jsonl
 ```
 
 Rev should stay inspectable. The user should be able to open `.rev/` and see
@@ -95,3 +96,18 @@ not build that in the first MVP, but the natural later command is:
 
 It would show previous `rev check` runs, verdicts, validator failures, repeated
 findings, report links, and recovery prompts from `.rev/memory.jsonl`.
+
+## Decision Paths
+
+Rev stores portable decision paths in `.rev/decisions.jsonl`.
+
+Unlike `claude-mem`, which focuses on memories, Rev focuses on decision paths:
+intent, observation, decision, evidence, and recovery. These copyable units can
+move to another repo, Codex session, Claude session, or wiki. Examples:
+- interpreted goal -> implementation target
+- drift reason -> recovery prompt
+- failed validator -> required fix
+- hallucinated completion claim -> evidence disproving it
+
+`rev search <query>` should search decision paths locally. MVP search can be
+case-insensitive text search over JSONL.

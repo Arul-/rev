@@ -2,8 +2,8 @@
 
 ## One-Liner
 
-Rev adds a second-opinion reviewer to Codex `/goal`, so autonomous runs come
-back with a trust report instead of just a diff.
+Rev is a second-opinion reviewer for Codex `/goal` that catches drift and
+hallucination, then writes the recovery prompt to get the run back on track.
 
 ## Target Track
 
@@ -29,7 +29,10 @@ Manual review is slow and easy to skip during a hackathon.
 
 ## Product
 
-Rev is a Bun CLI that runs at the end of a goal and writes a review packet.
+Rev is a Bun CLI plus local inspector that runs alongside Codex `/goal`.
+`rev check` writes the review packet. `rev serve` keeps a local dashboard
+available so the user can see drift, hallucination, validators, and recovery
+status while Codex is working.
 
 Inputs:
 - `.rev/goal.md`
@@ -43,12 +46,20 @@ Outputs:
 - `.rev/report.md`
 - `.rev/recovery-prompt.md`
 - `.rev/memory.jsonl`
+- `.rev/decisions.jsonl`
+
+Visible surface:
+- `http://127.0.0.1:37887`
 
 ## MVP
 
-Build `./bin/rev check`.
+Build `./bin/rev check` and `./bin/rev serve`.
 
-Behavior:
+`rev serve` should be inspired by `claude-mem`: a local always-available
+inspector over Rev's generated artifacts. It does not need a database or vector
+search for MVP.
+
+`rev check` behavior:
 
 1. Ensure `.rev/` exists.
 2. If `.rev/goal.md` does not exist, create it from the first positional
@@ -80,6 +91,21 @@ Behavior:
 10. If the reviewer says the goal is not satisfied or the review is
    inconclusive, write `.rev/recovery-prompt.md`.
 11. Append a compact run-memory entry to `.rev/memory.jsonl`.
+
+`rev serve` behavior:
+
+1. Start a Bun HTTP server on `127.0.0.1`.
+2. Default port: `37887`.
+3. If the port is busy, use the next available port and print the URL.
+4. Serve a dashboard that reads `.rev/goal.md`, `.rev/review.json`,
+   `.rev/validators.json`, `.rev/report.md`, `.rev/recovery-prompt.md`, and
+   `.rev/memory.jsonl`, and `.rev/decisions.jsonl`.
+5. Auto-refresh every 1-2 seconds.
+6. Show original goal, Codex interpreted goal, verdict, drift/hallucination
+   warnings, validators, test status, recovery prompt, run history, and
+   decision paths.
+7. `rev check` should try to ensure the server is running, but a failed server
+   start must not block report generation.
 
 ## Milestones
 
@@ -142,6 +168,22 @@ Build in this order.
   diffs.
 - Excludes text inside `<private>...</private>` blocks from memory summaries.
 
+### Milestone 10: Always-On Inspector
+
+- `./bin/rev serve` starts a local dashboard.
+- `./bin/rev check` starts or reuses the dashboard when possible.
+- Dashboard updates from `.rev/` artifacts without needing a database.
+- Dashboard makes the demo understandable without reading raw Markdown files.
+
+### Milestone 11: Portable Decision Paths
+
+- Extracts portable decision paths from each review.
+- Stores them in `.rev/decisions.jsonl`.
+- Shows them in the dashboard.
+- Supports simple local search over decision paths.
+- Lets the user copy a decision path as Markdown for use in another repo,
+  Codex session, Claude session, or wiki.
+
 ## Validators
 
 Rev should not rely only on the reviewer model. Add deterministic validators
@@ -172,6 +214,8 @@ Required validators:
 - `report_written`: `.rev/report.md` is written.
 - `memory_written`: `.rev/memory.jsonl` is appended after the report is
   written.
+- `decisions_written`: `.rev/decisions.jsonl` is appended when the reviewer
+  returns decision paths.
 
 Validator status values:
 - `pass`
@@ -188,9 +232,11 @@ the failed validators prominently.
 ./bin/rev init
 ./bin/rev check
 ./bin/rev report
+./bin/rev serve
+./bin/rev search <query>
 ```
 
-MVP only requires `check`.
+MVP requires `check` and `serve`.
 
 ## Config
 
@@ -307,6 +353,63 @@ entries so Codex can see whether it is repeating the same incomplete loop.
 `goal_interpretation` should answer: "What did the user actually want done, in
 clear implementation terms?" It should not invent extra scope.
 
+## Local Inspector
+
+Rev should follow the useful part of `claude-mem`'s product shape: a local
+background server makes the system inspectable while the agent is running.
+
+MVP implementation should stay file-backed:
+- no database
+- no auth
+- no vector search
+- no MCP server
+
+The dashboard should make the hackathon demo obvious:
+
+```text
+Goal: Build Rev as a Bun CLI
+Interpreted Goal: Implement rev check and rev serve for Codex /goal review
+Verdict: Needs correction
+Drift: High
+Reason: Codex updated docs but did not implement the CLI
+Recovery Prompt: Continue by implementing ./bin/rev check...
+```
+
+The server exists for visibility. The source of truth remains the files in
+`.rev/`.
+
+## Decision Paths
+
+`claude-mem` focuses on memories. Rev focuses on decision paths.
+
+A decision path is the reasoning trail from user intent to review verdict to
+recovery action. It is compact, searchable, and copyable:
+
+```json
+{
+  "timestamp": "2026-05-17T00:00:00.000Z",
+  "kind": "drift_recovery",
+  "intent": "Build rev check and rev serve for Codex /goal review.",
+  "observation": "The current run changed docs but did not implement the CLI.",
+  "decision": "Treat the run as drifted and incomplete.",
+  "recovery": "Continue by implementing ./bin/rev check before adding more docs.",
+  "evidence": ".rev/report.md",
+  "copy_markdown": "**Intent:** Build rev check and rev serve.\n**Observation:** Current run only changed docs.\n**Decision:** Drifted and incomplete.\n**Recovery:** Implement ./bin/rev check first.",
+  "tags": ["drift", "recovery", "cli"]
+}
+```
+
+Useful path types:
+- interpreted goal -> implementation target
+- drift reason -> recovery prompt
+- failed validator -> required fix
+- hallucinated completion claim -> evidence disproving it
+- user decision -> rationale
+
+Decision paths should be searchable with `./bin/rev search <query>` and visible
+in `rev serve`. MVP search can be simple case-insensitive text search over
+`.rev/decisions.jsonl`; no vector database is required.
+
 ## Reviewer Modes
 
 Rev has three conceptual modes. MVP only needs `goal`.
@@ -324,6 +427,7 @@ This mirrors the useful split in OpenAI's Codex Claude Code plugin:
 Rev's MVP should be less ambitious:
 - always write evidence
 - always write a report
+- keep a local inspector visible
 - block only by convention through `AGENTS.md`
 - avoid autonomous fix loops during the hackathon
 
@@ -342,12 +446,15 @@ Those belong to Portel later. Rev is the small wedge.
 
 The demo passes if:
 - a user can write a goal into `.rev/goal.md`
+- `./bin/rev serve` opens a visible local dashboard
 - Codex can make a code change
 - `./bin/rev check` runs
 - `bun test` passes
 - `.rev/report.md` is produced
 - the report clearly says whether the change satisfies the goal
 - the report includes a recovery prompt when it does not
+- the dashboard shows the interpreted goal, verdict, drift/hallucination status,
+  validators, and recovery prompt
 
 ## Build Stack
 
@@ -363,6 +470,7 @@ src/git.ts
 src/tests.ts
 src/reviewer.ts
 src/report.ts
+src/server.ts
 test/check.test.ts
 ```
 

@@ -177,6 +177,12 @@ The interpreted goal is the main value copied from `claude-mem`'s compression
 idea. The raw user request can be indirect or noisy; the stored memory should
 preserve Codex's concise reading of the implementation intent.
 
+Rev is different from `claude-mem`: `claude-mem` focuses on memories, while Rev
+focuses on decision paths. A decision path captures intent, observation,
+decision, evidence, and recovery action. That can be copied into another repo,
+another agent session, or a wiki. This matches the Codex `/goal` recovery
+workflow better than a private memory database alone.
+
 ## What Rev Should Not Copy Yet
 
 Do not copy these into the hackathon MVP:
@@ -190,6 +196,9 @@ Do not copy these into the hackathon MVP:
 
 Those are useful for a mature product, but they distract from the hackathon
 goal: prove that Codex `/goal` benefits from a second-opinion trust loop.
+
+Copy the search idea, but start with local text search over decision paths in
+`.rev/decisions.jsonl` rather than vector search.
 
 ## Codex Angle
 

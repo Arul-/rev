@@ -93,3 +93,16 @@ Reason:
 
 The interpretation must stay scoped to the user's request. It should clarify,
 not expand, the task.
+
+## 2026-05-17: Make Decision Paths Portable
+
+Rev should not only remember runs. It should extract copyable decision paths.
+
+Reason:
+- useful review knowledge should travel across repos and agent sessions
+- users need the distilled path from intent to observation to decision to
+  recovery, not a full report
+- simple search over decision paths gives most of the value before vector search
+
+Store decision paths in `.rev/decisions.jsonl`. Show them in `rev serve` and
+support `rev search <query>`.
