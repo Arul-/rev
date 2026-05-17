@@ -27,7 +27,7 @@ When Codex is about to stop, the hook receives the latest assistant message. If
 the message looks like completion, the hook runs:
 
 ```bash
-./bin/rev check
+rev check
 ```
 
 Then it reads `.rev/review.json`:

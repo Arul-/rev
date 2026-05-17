@@ -27,7 +27,7 @@ export async function loadGoal(cwd: string, initialGoal?: string): Promise<strin
   }
 
   if (!existsSync(goalPath)) {
-    throw new Error("Missing .rev/goal.md. Create it or run ./bin/rev check \"your goal\".");
+    throw new Error("Missing .rev/goal.md. Create it or run rev check \"your goal\".");
   }
 
   const goal = (await readText(goalPath)).trim();

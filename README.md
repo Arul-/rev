@@ -34,8 +34,8 @@ When Codex is about to finish a `/goal` run, the Stop hook runs `rev check`.
 If Rev approves, Codex can stop. If Rev finds drift, the hook feeds Codex the
 recovery prompt and the run continues instead of ending with a false "done."
 
-Manual `./bin/rev check` still exists for debugging and non-hook environments,
-but the intended workflow is automatic.
+Manual `rev check` still exists for debugging and non-hook environments, but
+the intended workflow is automatic.
 
 Hook details: [docs/hooks.md](docs/hooks.md)
 
@@ -61,12 +61,20 @@ recovery prompt back into Codex when the run needs to continue.
 
 ## Quickstart
 
+From an installed Rev binary:
+
+```bash
+rev init
+```
+
+From this checkout:
+
 ```bash
 bun install
 ./bin/rev init
 ```
 
-Then open Codex in the repo and trust the hook once:
+Then open Codex in the project and trust the hook once:
 
 ```text
 /hooks
@@ -108,7 +116,7 @@ whenever Codex presents a turn as complete.
 Manual fallback:
 
 ```bash
-./bin/rev check
+rev check
 ```
 
 ## What `rev check` Does
@@ -129,11 +137,11 @@ Manual fallback:
 ## Commands
 
 ```bash
-./bin/rev init
-./bin/rev check ["goal"]
-./bin/rev report
-./bin/rev serve
-./bin/rev search <query>
+rev init
+rev check ["goal"]
+rev report
+rev serve
+rev search <query>
 ```
 
 ## Output Files
@@ -197,7 +205,9 @@ Intent -> Observation -> Decision -> Recovery
 That path is the useful artifact. It explains what the user asked for, what the
 agent actually did, what Rev decided, and how to continue.
 
-## Project Knowledge
+## Development
 
-The `wiki/` folder contains design notes, architecture decisions, and research
-behind Rev. It is part of the project context for future agent runs.
+When working from this checkout, use `./bin/rev` instead of `rev`.
+
+The `wiki/` folder contains internal design notes, architecture decisions, and
+research for future Rev development.

@@ -46,7 +46,7 @@ if (result.error || result.status !== 0) {
   block(
     [
       "Rev could not complete the automatic goal check.",
-      "Inspect .rev/hook-output.txt, fix the issue, then run ./bin/rev check again before marking the goal done.",
+      "Inspect .rev/hook-output.txt, fix the issue, then run rev check again before marking the goal done.",
     ].join("\\n"),
   );
 }

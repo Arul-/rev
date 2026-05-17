@@ -197,7 +197,7 @@ export function heuristicReview(
   const goalSatisfied = verdict === "approve";
   const recovery = goalSatisfied
     ? ""
-    : "Continue the Rev goal by addressing failed validators, test failures, and any missing implementation evidence before running ./bin/rev check again.";
+    : "Continue the Rev goal by addressing failed validators, test failures, and any missing implementation evidence before running rev check again.";
   const driftLevel = !hasChanges ? "high" : warnings.length ? "medium" : "low";
   const observation = failed.length
     ? `Failed validators: ${failed.map((check) => check.name).join(", ")}.`

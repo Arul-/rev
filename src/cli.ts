@@ -33,7 +33,7 @@ export async function main(argv: string[]): Promise<void> {
 
     if (command === "search") {
       const query = rest.join(" ").trim();
-      if (!query) throw new Error("Usage: ./bin/rev search <query>");
+      if (!query) throw new Error("Usage: rev search <query>");
       const results = await searchDecisionPaths(cwd, query);
       console.log(formatSearchResults(results));
       return;
@@ -53,9 +53,9 @@ export async function main(argv: string[]): Promise<void> {
 
 function printHelp(): void {
   console.log(`Usage:
-  ./bin/rev init
-  ./bin/rev check ["goal"]
-  ./bin/rev report
-  ./bin/rev serve
-  ./bin/rev search <query>`);
+  rev init
+  rev check ["goal"]
+  rev report
+  rev serve
+  rev search <query>`);
 }
