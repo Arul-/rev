@@ -75,3 +75,9 @@ using `.rev/recovery-prompt.md`.
 - Runs `./bin/rev check` on this repo.
 - Inspects `.rev/report.md`.
 - Continues if Rev reports incomplete or inconclusive.
+
+### Milestone 9: Run Memory
+
+- Appends compact run outcomes to `.rev/memory.jsonl`.
+- Includes recent memory entries in future reviewer prompts.
+- Does not store raw diffs, raw prompts, or text inside `<private>` blocks.

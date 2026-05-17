@@ -14,6 +14,8 @@ and update it when they learn something useful.
   notes.
 - [Codex Review Research](research-codex-review.md) — prior art from Codex
   review, adversarial review, rescue, and stop gates.
+- [Claude Mem Research](research-claude-mem.md) — how `claude-mem` works and
+  what Rev should copy for Codex.
 
 ## Update Rule
 

@@ -2,5 +2,6 @@
   "testCommand": "bun test",
   "reviewCommand": "codex exec -s read-only",
   "reviewMode": "goal",
-  "maxReviewBytes": 200000
+  "maxReviewBytes": 200000,
+  "memoryEntries": 5
 }

@@ -18,6 +18,8 @@ Test:
 - fallback when structured parsing fails
 - report writing
 - recovery prompt writing
+- memory JSONL append
+- recent memory inclusion in reviewer prompt
 
 ## Dogfood Scenarios
 
@@ -64,3 +66,12 @@ Expected:
 - `.rev/test-output.txt` exists
 - `.rev/report.md` exists
 - report explains why the goal is satisfied or what remains
+
+### Repeated Incomplete Run
+
+Run `./bin/rev check` twice after an intentionally incomplete implementation.
+
+Expected:
+- `.rev/memory.jsonl` has one line per run
+- the second reviewer prompt includes the first run's compact memory entry
+- report notices repeated unresolved findings when relevant

@@ -42,6 +42,7 @@ Outputs:
 - `.rev/test-output.txt`
 - `.rev/report.md`
 - `.rev/recovery-prompt.md`
+- `.rev/memory.jsonl`
 
 ## MVP
 
@@ -77,6 +78,7 @@ Behavior:
 9. Write `.rev/report.md`.
 10. If the reviewer says the goal is not satisfied or the review is
    inconclusive, write `.rev/recovery-prompt.md`.
+11. Append a compact run-memory entry to `.rev/memory.jsonl`.
 
 ## Milestones
 
@@ -130,6 +132,14 @@ Build in this order.
 - If Rev says incomplete or inconclusive, continue using
   `.rev/recovery-prompt.md`.
 
+### Milestone 9: Run Memory
+
+- Appends one JSONL entry to `.rev/memory.jsonl` after each `rev check`.
+- Reads the last configured memory entries and includes them in the reviewer
+  prompt as prior run context.
+- Stores compact outcomes, not raw prompts or full diffs.
+- Excludes text inside `<private>...</private>` blocks from memory summaries.
+
 ## Validators
 
 Rev should not rely only on the reviewer model. Add deterministic validators
@@ -158,6 +168,8 @@ Required validators:
 - `rev_artifacts_excluded`: generated `.rev/` report artifacts are not included
   as review evidence.
 - `report_written`: `.rev/report.md` is written.
+- `memory_written`: `.rev/memory.jsonl` is appended after the report is
+  written.
 
 Validator status values:
 - `pass`
@@ -187,7 +199,8 @@ MVP only requires `check`.
   "testCommand": "bun test",
   "reviewCommand": "codex exec -s read-only",
   "reviewMode": "goal",
-  "maxReviewBytes": 200000
+  "maxReviewBytes": 200000,
+  "memoryEntries": 5
 }
 ```
 
@@ -258,6 +271,33 @@ Finding severities:
 
 If parsing structured JSON fails, Rev should still write the raw reviewer output
 to `.rev/report.md` and mark the verdict as `inconclusive`.
+
+## Run Memory
+
+`.rev/memory.jsonl` is a local append-only event log for Rev runs. It is a
+generated artifact and should stay gitignored.
+
+Each line should use this compact shape:
+
+```json
+{
+  "timestamp": "2026-05-17T00:00:00.000Z",
+  "goal_hash": "sha256:...",
+  "verdict": "needs_attention",
+  "goal_satisfied": false,
+  "summary": "Review found missing recovery prompt tests.",
+  "findings_count": 2,
+  "failed_validators": ["tests_completed"],
+  "test_exit_code": 1,
+  "report_path": ".rev/report.md",
+  "recovery_prompt_path": ".rev/recovery-prompt.md"
+}
+```
+
+Memory is for continuity, not storage. Do not store raw user prompts, raw diffs,
+or full reviewer output in memory entries. The next reviewer prompt may include
+the last `memoryEntries` entries so Codex can see whether it is repeating the
+same incomplete loop.
 
 ## Reviewer Modes
 

@@ -63,3 +63,21 @@ Validators create mechanical evidence before review:
 - `.rev/` artifacts excluded
 
 The reviewer then interprets those facts against the goal.
+
+## 2026-05-17: Copy Claude-Mem's Pattern, Not Its Stack
+
+Rev should add lightweight run memory, not a full clone of `claude-mem`.
+
+Reason:
+- `claude-mem` is built for cross-session personal memory with hooks, a worker
+  service, SQLite, vector search, MCP tools, and a web inspector.
+- Rev's immediate need is narrower: help the next `/goal` run understand what
+  the previous Rev check concluded.
+- A local `.rev/memory.jsonl` file is enough for the hackathon demo and keeps
+  the implementation testable inside a Bun CLI.
+
+Memory entries should be compact and private by default: no raw diffs, no raw
+prompts, and no content from `<private>...</private>` blocks.
+
+The inspector idea is still valuable. Defer it until after `rev check` works,
+then consider `rev serve` for browsing run history.

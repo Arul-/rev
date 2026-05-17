@@ -46,6 +46,7 @@ Artifacts:
 .rev/review.json
 .rev/report.md
 .rev/recovery-prompt.md
+.rev/memory.jsonl
 ```
 
 Rev should stay inspectable. The user should be able to open `.rev/` and see
@@ -64,3 +65,28 @@ Required validators:
 - report was written
 
 Validators write `.rev/validators.json` and are included in the reviewer prompt.
+
+## Run Memory
+
+Rev keeps lightweight continuity in `.rev/memory.jsonl`.
+
+Unlike `claude-mem`, Rev does not need a daemon, SQLite, vector search, or MCP
+tools for the hackathon MVP. Each `rev check` appends a compact outcome:
+verdict, goal hash, summary, finding count, failed validators, test exit code,
+and paths to the report/recovery prompt.
+
+Future checks should include the last configured memory entries in the reviewer
+prompt. This helps Codex notice repeated failure loops without re-reading full
+logs or full diffs.
+
+## Future Inspector
+
+`claude-mem` runs a local web inspector for human memory browsing. Rev should
+not build that in the first MVP, but the natural later command is:
+
+```bash
+./bin/rev serve
+```
+
+It would show previous `rev check` runs, verdicts, validator failures, repeated
+findings, report links, and recovery prompts from `.rev/memory.jsonl`.

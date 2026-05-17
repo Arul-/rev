@@ -11,3 +11,4 @@ node_modules/
 .rev/review.json
 .rev/validators.json
 .rev/recovery-prompt.md
+.rev/memory.jsonl
