@@ -81,3 +81,15 @@ prompts, and no content from `<private>...</private>` blocks.
 
 The inspector idea is still valuable. Defer it until after `rev check` works,
 then consider `rev serve` for browsing run history.
+
+## 2026-05-17: Store Codex's Interpreted Goal
+
+Rev memory should store Codex's concise interpretation of what the user asked.
+
+Reason:
+- the user may describe the goal conversationally or indirectly
+- later reviewers need a clear target, not a transcript
+- storing only the raw prompt makes repeated-run memory less useful
+
+The interpretation must stay scoped to the user's request. It should clarify,
+not expand, the task.

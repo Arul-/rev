@@ -161,6 +161,7 @@ Each `rev check` should append:
 
 - timestamp
 - goal hash
+- Codex's clear interpretation of what the user asked
 - verdict
 - goal satisfaction boolean
 - compact summary
@@ -171,6 +172,10 @@ Each `rev check` should append:
 - recovery prompt path
 
 The next check can include the last configured entries in the reviewer prompt.
+
+The interpreted goal is the main value copied from `claude-mem`'s compression
+idea. The raw user request can be indirect or noisy; the stored memory should
+preserve Codex's concise reading of the implementation intent.
 
 ## What Rev Should Not Copy Yet
 

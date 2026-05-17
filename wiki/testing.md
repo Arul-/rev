@@ -20,6 +20,7 @@ Test:
 - recovery prompt writing
 - memory JSONL append
 - recent memory inclusion in reviewer prompt
+- Codex-interpreted goal stored in memory and review JSON
 
 ## Dogfood Scenarios
 
@@ -73,5 +74,6 @@ Run `./bin/rev check` twice after an intentionally incomplete implementation.
 
 Expected:
 - `.rev/memory.jsonl` has one line per run
+- each memory entry includes `goal_interpretation`
 - the second reviewer prompt includes the first run's compact memory entry
 - report notices repeated unresolved findings when relevant

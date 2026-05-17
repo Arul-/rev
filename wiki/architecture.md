@@ -72,12 +72,17 @@ Rev keeps lightweight continuity in `.rev/memory.jsonl`.
 
 Unlike `claude-mem`, Rev does not need a daemon, SQLite, vector search, or MCP
 tools for the hackathon MVP. Each `rev check` appends a compact outcome:
-verdict, goal hash, summary, finding count, failed validators, test exit code,
-and paths to the report/recovery prompt.
+verdict, goal hash, Codex's interpreted goal, summary, finding count, failed
+validators, test exit code, and paths to the report/recovery prompt.
 
 Future checks should include the last configured memory entries in the reviewer
 prompt. This helps Codex notice repeated failure loops without re-reading full
 logs or full diffs.
+
+The interpreted goal is important. Users often describe work in a conversational
+or roundabout way; Rev should preserve Codex's clear implementation-level
+reading of the request so the next reviewer can compare work against intent
+without replaying the whole conversation.
 
 ## Future Inspector
 

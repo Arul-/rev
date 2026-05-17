@@ -74,6 +74,7 @@ Behavior:
    - Include goal, git status, diff, untracked-file summary, test output, and
      validator output in the prompt.
    - Ask for a compact JSON verdict first, then Markdown explanation.
+   - Ask Codex to include its concise interpretation of what the user asked.
 8. Write `.rev/review.json` when a JSON verdict can be parsed.
 9. Write `.rev/report.md`.
 10. If the reviewer says the goal is not satisfied or the review is
@@ -137,7 +138,8 @@ Build in this order.
 - Appends one JSONL entry to `.rev/memory.jsonl` after each `rev check`.
 - Reads the last configured memory entries and includes them in the reviewer
   prompt as prior run context.
-- Stores compact outcomes, not raw prompts or full diffs.
+- Stores compact outcomes and Codex's interpreted goal, not raw prompts or full
+  diffs.
 - Excludes text inside `<private>...</private>` blocks from memory summaries.
 
 ## Validators
@@ -238,6 +240,7 @@ Goal satisfied: yes/no/inconclusive
 {
   "verdict": "approve",
   "goal_satisfied": true,
+  "goal_interpretation": "Build a Bun CLI that reviews a Codex /goal run against the original goal, tests, validators, and diff.",
   "summary": "The implementation satisfies the goal.",
   "findings": [
     {
@@ -283,6 +286,7 @@ Each line should use this compact shape:
 {
   "timestamp": "2026-05-17T00:00:00.000Z",
   "goal_hash": "sha256:...",
+  "goal_interpretation": "Add recovery prompt tests for failed or inconclusive reviewer runs.",
   "verdict": "needs_attention",
   "goal_satisfied": false,
   "summary": "Review found missing recovery prompt tests.",
@@ -295,9 +299,13 @@ Each line should use this compact shape:
 ```
 
 Memory is for continuity, not storage. Do not store raw user prompts, raw diffs,
-or full reviewer output in memory entries. The next reviewer prompt may include
-the last `memoryEntries` entries so Codex can see whether it is repeating the
-same incomplete loop.
+or full reviewer output in memory entries. Store Codex's concise interpretation
+of the user request because the raw request may be conversational, indirect, or
+roundabout. The next reviewer prompt may include the last `memoryEntries`
+entries so Codex can see whether it is repeating the same incomplete loop.
+
+`goal_interpretation` should answer: "What did the user actually want done, in
+clear implementation terms?" It should not invent extra scope.
 
 ## Reviewer Modes
 

@@ -80,4 +80,5 @@ using `.rev/recovery-prompt.md`.
 
 - Appends compact run outcomes to `.rev/memory.jsonl`.
 - Includes recent memory entries in future reviewer prompts.
+- Stores Codex's concise interpretation of what the user actually asked.
 - Does not store raw diffs, raw prompts, or text inside `<private>` blocks.
