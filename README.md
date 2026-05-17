@@ -20,6 +20,11 @@ The first version should:
 Do not build the full Portel/Tel product here. This repo is only the Rev
 hackathon harness.
 
+## Project Memory
+
+The `wiki/` folder is the Rev knowledge base. Codex should read it before
+making design changes and update it when a run learns something useful.
+
 ## Demo Story
 
 During the Ralph Loop, Codex can work autonomously for an hour. Rev gives the

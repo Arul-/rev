@@ -8,9 +8,10 @@ This repository is for building Rev, a second-opinion harness for Codex
 When working on a `/goal` in this repo:
 
 1. Treat `SPEC.md` as the source of truth.
-2. Keep the implementation small and demoable.
-3. Prefer a working CLI over a broad architecture.
-4. Do not mark the goal complete until Rev can run against its own repo.
+2. Read `wiki/README.md` and the relevant wiki pages before changing behavior.
+3. Keep the implementation small and demoable.
+4. Prefer a working CLI over a broad architecture.
+5. Do not mark the goal complete until Rev can run against its own repo.
 
 ## Required Completion Check
 
@@ -64,3 +65,17 @@ test/check.test.ts
 
 Do not build a server, hosted UI, MCP server, or mobile app for the first
 hackathon slice.
+
+## Wiki Rule
+
+Keep `wiki/` current.
+
+Update it when:
+- CLI behavior changes
+- report format changes
+- tests reveal an edge case
+- Codex `/goal` usage reveals a limitation
+- hackathon positioning changes
+
+Do not paste large logs. Summarize the learning and include commands or file
+paths.
