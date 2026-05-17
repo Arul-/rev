@@ -7,6 +7,9 @@
     "rev": "./bin/rev"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
   }
 }

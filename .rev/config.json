@@ -1,4 +1,4 @@
 {
-  "testCommand": "npm test",
+  "testCommand": "bun test",
   "reviewCommand": "codex review --uncommitted"
 }

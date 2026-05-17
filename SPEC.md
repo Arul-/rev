@@ -29,7 +29,7 @@ Manual review is slow and easy to skip during a hackathon.
 
 ## Product
 
-Rev is a CLI that runs at the end of a goal and writes a review packet.
+Rev is a Bun CLI that runs at the end of a goal and writes a review packet.
 
 Inputs:
 - `.rev/goal.md`
@@ -56,8 +56,8 @@ Behavior:
 4. Run a test command.
    - Read from `.rev/config.json` key `testCommand`.
    - If absent, try common commands in order:
-     - `npm test`
      - `bun test`
+     - `npm test`
      - `pnpm test`
    - If no package file exists, record that tests were skipped.
 5. Run a reviewer command.
@@ -83,7 +83,7 @@ MVP only requires `check`.
 
 ```json
 {
-  "testCommand": "npm test",
+  "testCommand": "bun test",
   "reviewCommand": "codex review --uncommitted"
 }
 ```
@@ -133,6 +133,27 @@ The demo passes if:
 - a user can write a goal into `.rev/goal.md`
 - Codex can make a code change
 - `./bin/rev check` runs
+- `bun test` passes
 - `.rev/report.md` is produced
 - the report clearly says whether the change satisfies the goal
 - the report includes a recovery prompt when it does not
+
+## Build Stack
+
+Use Bun.
+
+Expected structure:
+
+```text
+bin/rev
+src/check.ts
+src/config.ts
+src/git.ts
+src/tests.ts
+src/reviewer.ts
+src/report.ts
+test/check.test.ts
+```
+
+Use Bun and standard library APIs. Avoid runtime dependencies for the first
+version. `@types/bun` is allowed for editor/type support.

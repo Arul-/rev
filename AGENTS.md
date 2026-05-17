@@ -42,13 +42,25 @@ A Rev report must answer:
 
 ## Implementation Bias
 
-Use Node.js or Bun for the CLI unless the repo already chooses another stack.
-Keep dependencies minimal.
+Use Bun for the CLI and tests. Keep dependencies minimal.
 
 The first useful version can call existing shell commands:
 - `git diff`
 - configured test command
 - `codex review --uncommitted`
+
+Preferred structure:
+
+```text
+bin/rev
+src/check.ts
+src/config.ts
+src/git.ts
+src/tests.ts
+src/reviewer.ts
+src/report.ts
+test/check.test.ts
+```
 
 Do not build a server, hosted UI, MCP server, or mobile app for the first
 hackathon slice.

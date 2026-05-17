@@ -43,6 +43,16 @@ rev report
 
 For the first implementation, `rev check` is enough.
 
+## Stack
+
+Use Bun:
+
+```bash
+bun install
+bun test
+./bin/rev check
+```
+
 ## Reviewer Backends
 
 Start with Codex because it is available at the event:
