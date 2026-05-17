@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rev - Ralphthon Pitch</title>
+  <style>
+    :root {
+      --rev-canvas: #07100f;
+      --rev-panel: #0d1918;
+      --rev-panel-raised: #142522;
+      --rev-panel-hot: #1b302d;
+      --rev-ink: #e8fff7;
+      --rev-soft: #b6d3cd;
+      --rev-muted: #7d9a93;
+      --rev-line: #24433f;
+      --rev-trace: #38d5c9;
+      --rev-pass: #68f29a;
+      --rev-drift: #ffb84d;
+      --rev-fail: #ff6b6b;
+      --rev-shadow: rgba(0, 0, 0, 0.4);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--rev-canvas);
+      color: var(--rev-ink);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .deck {
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: min(100vh, calc(100vw * 9 / 16));
+      position: relative;
+      background:
+        radial-gradient(circle at 78% 18%, rgba(56, 213, 201, 0.09), transparent 26%),
+        linear-gradient(135deg, #07100f 0%, #0b1514 52%, #081110 100%);
+      border: 1px solid rgba(56, 213, 201, 0.18);
+      box-shadow: 0 32px 80px var(--rev-shadow);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 5.4% 6%;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      left: 3.5%;
+      top: 5%;
+      bottom: 5%;
+      width: 2px;
+      background: var(--rev-trace);
+      opacity: 0.8;
+    }
+
+    .kicker {
+      color: var(--rev-trace);
+      font: 700 0.72rem/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.1rem;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      max-width: 10ch;
+    }
+
+    h2 {
+      font-size: clamp(2.1rem, 4vw, 4rem);
+      line-height: 1;
+      letter-spacing: 0;
+      max-width: 15ch;
+    }
+
+    .wide h2 {
+      max-width: 19ch;
+    }
+
+    .sub {
+      color: var(--rev-soft);
+      font-size: clamp(1rem, 1.55vw, 1.35rem);
+      line-height: 1.45;
+      max-width: 62ch;
+      margin-top: 1.2rem;
+    }
+
+    .footer {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      bottom: 4.6%;
+      display: flex;
+      justify-content: space-between;
+      color: var(--rev-muted);
+      border-top: 1px solid var(--rev-line);
+      padding-top: 0.75rem;
+      font: 600 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+
+    .path {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 3.5rem;
+    }
+
+    .node {
+      min-height: 8rem;
+      background: var(--rev-panel);
+      border: 1px solid var(--rev-line);
+      padding: 1.05rem;
+      position: relative;
+      border-radius: 8px;
+    }
+
+    .node.hot {
+      background: var(--rev-panel-hot);
+      border-color: var(--rev-drift);
+    }
+
+    .node.pass {
+      border-color: var(--rev-pass);
+    }
+
+    .node.fail {
+      border-color: var(--rev-fail);
+    }
+
+    .node .label {
+      color: var(--rev-trace);
+      font: 800 0.67rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.8rem;
+    }
+
+    .node.hot .label { color: var(--rev-drift); }
+    .node.fail .label { color: var(--rev-fail); }
+
+    .node .value {
+      font-weight: 750;
+      font-size: clamp(0.96rem, 1.22vw, 1.24rem);
+      line-height: 1.25;
+      color: var(--rev-ink);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .status {
+      height: 4.3rem;
+      background: var(--rev-panel-raised);
+      border: 1px solid var(--rev-line);
+      border-radius: 8px;
+      padding: 0.8rem 0.95rem;
+    }
+
+    .status span {
+      display: block;
+      color: var(--rev-muted);
+      font: 800 0.65rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.5rem;
+    }
+
+    .status strong {
+      display: block;
+      color: var(--state, var(--rev-ink));
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.7rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+
+    .panel {
+      background: var(--rev-panel);
+      border: 1px solid var(--rev-line);
+      border-radius: 8px;
+      padding: 1.35rem;
+      min-height: 10rem;
+    }
+
+    .panel h3 {
+      color: var(--rev-trace);
+      font: 800 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .panel p, .panel li {
+      color: var(--rev-soft);
+      font-size: clamp(0.92rem, 1.08vw, 1.08rem);
+      line-height: 1.42;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    li + li {
+      margin-top: 0.55rem;
+    }
+
+    .terminal {
+      margin-top: 2.6rem;
+      background: #081311;
+      border: 1px solid var(--rev-line);
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      font: 600 1rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--rev-soft);
+    }
+
+    .terminal .ok { color: var(--rev-pass); }
+    .terminal .warn { color: var(--rev-drift); }
+    .terminal .bad { color: var(--rev-fail); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-top: 3.2rem;
+      align-items: stretch;
+    }
+
+    .step {
+      border: 1px solid var(--rev-line);
+      background: var(--rev-panel);
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 7.2rem;
+    }
+
+    .step b {
+      display: block;
+      color: var(--rev-ink);
+      margin-bottom: 0.8rem;
+      font-size: 1.05rem;
+    }
+
+    .step code {
+      color: var(--rev-muted);
+      font: 700 0.78rem/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .mock {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr 0.95fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      min-height: 20rem;
+    }
+
+    .mock .rail {
+      grid-column: 1 / 4;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+    }
+
+    .copy {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--rev-canvas);
+      background: var(--rev-pass);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      font: 850 0.8rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+
+    .big-quote {
+      margin-top: 3.4rem;
+      color: var(--rev-ink);
+      font-size: clamp(2.1rem, 4.5vw, 4.4rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+      max-width: 14ch;
+      font-weight: 850;
+    }
+
+    .progress {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3px;
+      width: calc((var(--index) + 1) / var(--count) * 100%);
+      background: var(--rev-trace);
+    }
+
+    .hint {
+      position: absolute;
+      right: 6%;
+      bottom: 7.2%;
+      color: var(--rev-muted);
+      font: 650 0.7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .path, .status-row, .grid-3, .flow, .mock {
+        gap: 0.65rem;
+      }
+
+      .panel, .node, .step {
+        padding: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" aria-live="polite">
+    <section class="slide active">
+      <div class="kicker">Rev / Ralphthon Harness Track</div>
+      <h1>Catch agent drift before demo time.</h1>
+      <p class="sub">Rev is a second-opinion harness for Codex /goal. It records the decision path: what the user meant, what Codex did, where it drifted, and how to recover.</p>
+      <div class="path">
+        <div class="node"><div class="label">Intent</div><div class="value">Build the CLI and inspector.</div></div>
+        <div class="node"><div class="label">Observation</div><div class="value">Run only edited the spec.</div></div>
+        <div class="node hot"><div class="label">Decision</div><div class="value">Drifted. Not complete.</div></div>
+        <div class="node pass"><div class="label">Recovery</div><div class="value">Implement ./bin/rev check first.</div></div>
+      </div>
+      <div class="status-row">
+        <div class="status" style="--state: var(--rev-drift)"><span>Goal Match</span><strong>42%</strong></div>
+        <div class="status" style="--state: var(--rev-drift)"><span>Drift</span><strong>High</strong></div>
+        <div class="status" style="--state: var(--rev-pass)"><span>Tests</span><strong>Pass</strong></div>
+        <div class="status" style="--state: var(--rev-pass)"><span>Recovery</span><strong>Ready</strong></div>
+      </div>
+      <div class="footer"><span>01</span><span>decision paths for autonomous Codex runs</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">01 / Problem</div>
+      <h2>Ralph Loop creates a trust gap.</h2>
+      <p class="sub">The event asks agents to work while humans step away. The hard part is knowing whether the agent actually stayed on task.</p>
+      <div class="grid-2">
+        <div class="panel"><h3>What fails</h3><ul><li>Prompt is rushed or roundabout.</li><li>Agent makes adjacent edits.</li><li>Agent claims done with weak evidence.</li><li>Human returns with no clear next action.</li></ul></div>
+        <div class="panel"><h3>Why it matters</h3><p>The failure is not always a crash. The dangerous failure is confident completion of the wrong work.</p><div class="terminal"><span>$ codex /goal "make Rev ready"</span><br><span>agent: updated docs...</span><br><span class="ok">agent: done.</span><br><span class="warn">rev: drift high - no CLI implemented</span></div></div>
+      </div>
+      <div class="footer"><span>02</span><span>autonomy needs a review harness</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">02 / Product</div>
+      <h2>Claude-mem remembers. Rev explains decisions.</h2>
+      <p class="sub">Rev does not try to be general memory. It captures the decision path of a Codex run so the next run can course-correct.</p>
+      <div class="path">
+        <div class="node"><div class="label">Intent</div><div class="value">Codex interprets the user's real target.</div></div>
+        <div class="node"><div class="label">Observation</div><div class="value">Diff, tests, validators, report evidence.</div></div>
+        <div class="node hot"><div class="label">Decision</div><div class="value">Approve, correct, investigate, or reject.</div></div>
+        <div class="node pass"><div class="label">Recovery</div><div class="value">Copy exact prompt to continue Codex.</div></div>
+      </div>
+      <div class="grid-3">
+        <div class="panel"><h3>.rev/review.json</h3><p>Verdict, interpreted goal, findings, recovery prompt.</p></div>
+        <div class="panel"><h3>.rev/decisions.jsonl</h3><p>Portable decision paths with evidence and Markdown copy.</p></div>
+        <div class="panel"><h3>rev serve</h3><p>Local inspector that makes drift visible without raw files.</p></div>
+      </div>
+      <div class="footer"><span>03</span><span>memory is history, decisions are reusable</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">03 / Harness</div>
+      <h2>The architecture is small enough to trust.</h2>
+      <p class="sub">A file-backed loop that Codex can build, inspect, and dogfood during the hackathon.</p>
+      <div class="flow">
+        <div class="step"><b>User goal</b><code>.rev/goal.md</code></div>
+        <div class="step"><b>Evidence</b><code>git diff<br />tests</code></div>
+        <div class="step"><b>Validators</b><code>mechanical checks</code></div>
+        <div class="step"><b>Reviewer</b><code>codex exec<br />read-only</code></div>
+        <div class="step"><b>Recovery</b><code>prompt + path</code></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel"><h3>Outputs</h3><p><code>.rev/report.md</code><br /><code>.rev/review.json</code><br /><code>.rev/decisions.jsonl</code></p></div>
+        <div class="panel"><h3>Visible loop</h3><p><code>rev serve</code> watches artifacts and turns them into a local eval console.</p></div>
+      </div>
+      <div class="footer"><span>04</span><span>no database, no hosted service, no hidden state</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">04 / Inspector</div>
+      <h2>The cool part is seeing the agent get corrected.</h2>
+      <p class="sub">The inspector is a flight recorder for autonomous Codex runs. The signature object is the decision path rail.</p>
+      <div class="mock">
+        <div class="status" style="--state: var(--rev-drift)"><span>Goal Match</span><strong>42%</strong></div>
+        <div class="status" style="--state: var(--rev-drift)"><span>Drift</span><strong>High</strong></div>
+        <div class="status" style="--state: var(--rev-pass)"><span>Recovery</span><strong>Ready</strong></div>
+        <div class="rail">
+          <div class="node"><div class="label">Intent</div><div class="value">Build Rev CLI.</div></div>
+          <div class="node"><div class="label">Observation</div><div class="value">Only docs changed.</div></div>
+          <div class="node fail"><div class="label">Decision</div><div class="value">Hallucinated completion.</div></div>
+          <div class="node pass"><div class="label">Recovery</div><div class="value">Implement check path.</div></div>
+        </div>
+        <div class="panel"><h3>Evidence</h3><p>No <code>src/check.ts</code>. No CLI tests. Report claims done.</p></div>
+        <div class="panel"><h3>Decision path</h3><p>Intent -> observation -> decision -> recovery, searchable and portable.</p></div>
+        <div class="panel"><h3>Next move</h3><p>Paste the recovery prompt back into Codex.</p><span class="copy">Copy Recovery</span></div>
+      </div>
+      <div class="footer"><span>05</span><span>visible state beats markdown files</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">05 / Sponsor Fit</div>
+      <h2>This lands where the event is pointed.</h2>
+      <p class="sub">Rev is not a wrapper UI. It is an agent-eval harness with a visible recovery loop.</p>
+      <div class="grid-2">
+        <div class="panel"><h3>OpenAI / Codex</h3><p>Makes /goal more reliable by turning autonomous runs into recoverable runs.</p></div>
+        <div class="panel"><h3>Arize</h3><p>Eval language: trace, drift, validators, LLM-as-judge, regression evidence.</p></div>
+        <div class="panel"><h3>IronClaw / NEAR AI</h3><p>Complements secure execution with trust of intent and evidence of correctness.</p></div>
+        <div class="panel"><h3>Builder communities</h3><p>Demo-first. Less explanation, more visible proof that the agent drifted.</p></div>
+      </div>
+      <div class="footer"><span>06</span><span>rubric fit: harness design, skills, spec writing, delegation craft</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">06 / Demo Script</div>
+      <h2>One moment wins the room.</h2>
+      <p class="sub">Show Codex drifting, then show Rev catching it and handing back the exact recovery prompt.</p>
+      <div class="terminal">
+        <span>$ ./bin/rev serve</span><br />
+        <span class="ok">local inspector ready at 127.0.0.1:37887</span><br />
+        <span>$ codex /goal "make Rev ready for Ralphthon"</span><br />
+        <span>agent: done</span><br />
+        <span>$ ./bin/rev check</span><br />
+        <span class="bad">drift: high</span><br />
+        <span class="warn">decision: incomplete - only docs changed</span><br />
+        <span class="ok">recovery prompt copied</span>
+      </div>
+      <div class="big-quote">"It caught the agent lying about being done."</div>
+      <div class="footer"><span>07</span><span>the pitch is course correction</span></div>
+    </section>
+
+    <section class="slide wide">
+      <div class="kicker">07 / Ask</div>
+      <h2>Build the loop, not the whole platform.</h2>
+      <p class="sub">For the hackathon, Rev only needs to prove one thing: autonomous Codex runs become easier to trust when their decision paths are visible and recoverable.</p>
+      <div class="grid-3">
+        <div class="panel"><h3>Must ship</h3><ul><li><code>rev check</code></li><li><code>rev serve</code></li><li>decision paths</li><li>copy recovery</li></ul></div>
+        <div class="panel"><h3>Do not ship yet</h3><ul><li>hosted app</li><li>vector search</li><li>MCP server</li><li>multi-agent UI</li></ul></div>
+        <div class="panel"><h3>Winning frame</h3><p>Rev captures the decision path of an autonomous Codex run: what the user meant, what Codex did, where it drifted, and how to recover.</p></div>
+      </div>
+      <div class="footer"><span>08</span><span>small wedge, clear demo, sponsor-aligned</span></div>
+    </section>
+
+    <div class="progress" id="progress"></div>
+    <div class="hint">Use arrow keys</div>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const progress = document.getElementById("progress");
+    const deck = document.getElementById("deck");
+    let index = 0;
+    deck.style.setProperty("--count", slides.length);
+
+    function show(next) {
+      index = Math.max(0, Math.min(slides.length - 1, next));
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+      deck.style.setProperty("--index", index);
+      progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      location.hash = `slide-${index + 1}`;
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) show(index + 1);
+      if (["ArrowLeft", "PageUp", "Backspace"].includes(event.key)) show(index - 1);
+      if (event.key === "Home") show(0);
+      if (event.key === "End") show(slides.length - 1);
+    });
+
+    const match = location.hash.match(/slide-(\d+)/);
+    show(match ? Number(match[1]) - 1 : 0);
+  </script>
+</body>
+</html>
