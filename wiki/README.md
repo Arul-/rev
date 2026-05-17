@@ -8,6 +8,8 @@ and update it when they learn something useful.
 ## Pages
 
 - [Architecture](architecture.md) — how Rev works internally.
+- [Inspector Design](inspector-design.md) — how the local dashboard should look
+  and feel.
 - [Decisions](decisions.md) — product and engineering decisions.
 - [Testing](testing.md) — how to test Rev and what scenarios matter.
 - [Hackathon Notes](hackathon-notes.md) — demo story, track fit, and judging

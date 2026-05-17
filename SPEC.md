@@ -107,6 +107,21 @@ search for MVP.
 7. `rev check` should try to ensure the server is running, but a failed server
    start must not block report generation.
 
+Inspector design requirements:
+- The main visual object is a decision path rail:
+  `Intent -> Observation -> Decision -> Recovery`.
+- The page should look like an agent evaluation console, not a generic SaaS
+  dashboard.
+- The top strip must show `Goal Match`, `Drift`, `Tests`, and `Recovery`.
+- Drift/hallucination state must be visible within 3 seconds of opening the
+  page.
+- Each decision path must have copy buttons for:
+  - recovery prompt
+  - decision path as Markdown
+  - "what went wrong" summary
+- Use compact, high-signal panels. Avoid hero sections, marketing copy, and
+  card-heavy decoration.
+
 ## Milestones
 
 Build in this order.
@@ -377,6 +392,8 @@ Recovery Prompt: Continue by implementing ./bin/rev check...
 
 The server exists for visibility. The source of truth remains the files in
 `.rev/`.
+
+See `wiki/inspector-design.md` for the visual system.
 
 ## Decision Paths
 
