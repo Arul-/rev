@@ -22,6 +22,8 @@ Test:
 - recent memory inclusion in reviewer prompt
 - Codex-interpreted goal stored in memory and review JSON
 - decision paths are written, searchable, and copyable as Markdown
+- untracked text files are included in `.rev/diff.patch` so the reviewer can
+  inspect newly created implementation files before they are staged
 
 ## Dogfood Scenarios
 

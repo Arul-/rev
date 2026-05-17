@@ -111,3 +111,10 @@ move to another repo, Codex session, Claude session, or wiki. Examples:
 
 `rev search <query>` should search decision paths locally. MVP search can be
 case-insensitive text search over JSONL.
+
+## Untracked Evidence
+
+`git diff` does not include newly created untracked files. Rev still lists those
+files in `.rev/untracked-files.txt`, and the MVP also appends a simple
+new-file-style patch for untracked text files to `.rev/diff.patch`. This keeps
+dogfood runs reviewable before Codex stages or commits the new implementation.

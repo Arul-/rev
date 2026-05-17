@@ -9,6 +9,7 @@ node_modules/
 .rev/test-output.txt
 .rev/report.md
 .rev/review.json
+.rev/reviewer-output.txt
 .rev/validators.json
 .rev/recovery-prompt.md
 .rev/memory.jsonl
