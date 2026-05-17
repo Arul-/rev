@@ -145,6 +145,8 @@ tests, Rev also supports a deterministic internal reviewer:
 `rev serve` starts a file-backed local dashboard over the latest `.rev/`
 artifacts. It shows:
 
+![Rev inspector web interface](docs/assets/rev-inspector.png)
+
 - original goal and reviewer interpretation
 - goal match, drift, tests, and recovery status
 - deterministic validator results
