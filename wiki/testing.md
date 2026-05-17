@@ -24,6 +24,10 @@ Test:
 - decision paths are written, searchable, and copyable as Markdown
 - untracked text files are included in `.rev/diff.patch` so the reviewer can
   inspect newly created implementation files before they are staged
+- `rev serve` exposes both the inspector HTML and `/api/state` artifact payload
+  in a smoke test
+- `.rev/` exclusion validation distinguishes generated artifact file paths from
+  ordinary code or documentation text that mentions `.rev/report.md`
 
 ## Dogfood Scenarios
 

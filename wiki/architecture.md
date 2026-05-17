@@ -112,9 +112,18 @@ move to another repo, Codex session, Claude session, or wiki. Examples:
 `rev search <query>` should search decision paths locally. MVP search can be
 case-insensitive text search over JSONL.
 
+The reviewer is asked for structured decision paths, but the parser accepts
+rougher reviewer output too. Evidence-only findings are normalized into report
+bodies, and string decision notes become portable path records instead of
+breaking `.rev/decisions.jsonl`.
+
 ## Untracked Evidence
 
 `git diff` does not include newly created untracked files. Rev still lists those
 files in `.rev/untracked-files.txt`, and the MVP also appends a simple
 new-file-style patch for untracked text files to `.rev/diff.patch`. This keeps
 dogfood runs reviewable before Codex stages or commits the new implementation.
+
+The `.rev/` exclusion validator checks actual evidence paths: status entries,
+untracked file names, and diff file headers. It does not fail merely because the
+implementation or wiki mentions an artifact path such as `.rev/report.md`.

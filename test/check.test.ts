@@ -11,6 +11,7 @@ import { buildValidators } from "../src/validators";
 import { parseReviewJson } from "../src/reviewer";
 import { check } from "../src/check";
 import { searchDecisionPaths } from "../src/search";
+import { serve } from "../src/server";
 
 let dir = "";
 
@@ -71,7 +72,7 @@ test("validators report deterministic check states", async () => {
   const validators = buildValidators({
     cwd: dir,
     goal: "Build Rev",
-    evidence: { insideGitRepo: true, root: dir, status: " M file.ts\n", stagedDiff: "", unstagedDiff: "", combinedDiff: "diff", untrackedFiles: [] },
+    evidence: { insideGitRepo: true, root: dir, status: " M file.ts\n", stagedDiff: "", unstagedDiff: "", combinedDiff: 'diff\n+ evidence: ".rev/report.md"', untrackedFiles: [] },
     testRun: { command: "bun test", exitCode: 0, stdout: "", stderr: "", skipped: false },
   });
 
@@ -79,9 +80,44 @@ test("validators report deterministic check states", async () => {
   expect(validators.checks.find((check) => check.name === "rev_artifacts_excluded")?.status).toBe("pass");
 });
 
+test("validators fail when generated .rev files are actual review evidence paths", async () => {
+  const validators = buildValidators({
+    cwd: dir,
+    goal: "Build Rev",
+    evidence: {
+      insideGitRepo: true,
+      root: dir,
+      status: " M .rev/report.md\n",
+      stagedDiff: "",
+      unstagedDiff: "diff --git a/.rev/report.md b/.rev/report.md\n",
+      combinedDiff: "",
+      untrackedFiles: [],
+    },
+    testRun: { command: "bun test", exitCode: 0, stdout: "", stderr: "", skipped: false },
+  });
+
+  expect(validators.checks.find((check) => check.name === "rev_artifacts_excluded")?.status).toBe("fail");
+});
+
 test("review JSON parser accepts JSON followed by Markdown", () => {
   const parsed = parseReviewJson('{"verdict":"approve","goal_satisfied":true,"goal_interpretation":"Do it","summary":"done","findings":[],"next_steps":[]}\n\n## Notes');
   expect(parsed?.verdict).toBe("approve");
+});
+
+test("review JSON parser normalizes evidence-only findings and string decision paths", () => {
+  const parsed = parseReviewJson(JSON.stringify({
+    verdict: "needs_attention",
+    goal_satisfied: false,
+    goal_interpretation: "Build Rev",
+    summary: "Serve is not demonstrated.",
+    findings: [{ severity: "high", title: "Serve gap", evidence: "No serve smoke test." }],
+    next_steps: [],
+    recovery_prompt: "Add serve smoke test.",
+    decision_paths: ["Serve needs evidence."],
+  }));
+
+  expect(parsed?.findings[0].body).toContain("No serve smoke test");
+  expect(parsed?.decision_paths?.[0].observation).toContain("Serve needs evidence");
 });
 
 test("check writes report, recovery, memory, and decisions with internal reviewer", async () => {
@@ -121,6 +157,46 @@ test("decision path search returns complete paths", async () => {
   const results = await searchDecisionPaths(dir, "docs");
   expect(results).toHaveLength(1);
   expect(results[0].recovery).toBe("Implement check");
+});
+
+test("serve exposes dashboard html and latest artifact state", async () => {
+  await mkdir(join(dir, ".rev"), { recursive: true });
+  await writeFile(join(dir, ".rev", "goal.md"), "Build Rev inspector.\n");
+  await writeFile(join(dir, ".rev", "review.json"), JSON.stringify({
+    verdict: "approve",
+    goal_satisfied: true,
+    goal_interpretation: "Build Rev inspector.",
+    summary: "Dashboard works.",
+    findings: [],
+    next_steps: [],
+  }));
+  await writeFile(join(dir, ".rev", "validators.json"), JSON.stringify({ ok: true, checks: [{ name: "goal_present", status: "pass", message: "ok" }] }));
+  await writeFile(join(dir, ".rev", "test-output.txt"), "Command: bun test\nExit code: 0\n");
+  await writeFile(join(dir, ".rev", "memory.jsonl"), `${JSON.stringify({ timestamp: new Date().toISOString(), verdict: "approve", summary: "ok" })}\n`);
+  await writeFile(join(dir, ".rev", "decisions.jsonl"), `${JSON.stringify({
+    timestamp: new Date().toISOString(),
+    kind: "approval",
+    intent: "Build Rev inspector.",
+    observation: "Artifacts are visible.",
+    decision: "Approve",
+    recovery: "No recovery needed.",
+    evidence: ".rev/report.md",
+    copy_markdown: "**Intent:** Build Rev inspector.",
+    tags: ["serve"],
+  })}\n`);
+
+  const { server, url } = await serve(dir, { reviewCommand: "internal", reviewMode: "goal", maxReviewBytes: 1000, memoryEntries: 5, port: 39001 });
+  try {
+    const html = await fetch(url).then((response) => response.text());
+    const state = await fetch(`${url}/api/state`).then((response) => response.json());
+
+    expect(html).toContain("Decision Path Rail");
+    expect(JSON.stringify(state)).toContain("Build Rev inspector");
+    expect(JSON.stringify(state)).toContain("goal_present");
+    expect(JSON.stringify(state)).toContain("No recovery needed");
+  } finally {
+    server.stop(true);
+  }
 });
 
 async function run(command: string) {

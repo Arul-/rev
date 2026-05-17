@@ -29,9 +29,7 @@ export function buildValidators(args: {
   const { cwd, goal, evidence, testRun } = args;
   const noChangeExpected = /\b(no code change|no changes expected|documentation only|docs only)\b/i.test(goal);
   const hasReviewableChanges = Boolean(evidence.status.trim() || evidence.combinedDiff.trim() || evidence.untrackedFiles.length);
-  const revArtifactsExcluded = ![evidence.status, evidence.stagedDiff, evidence.unstagedDiff, evidence.combinedDiff, evidence.untrackedFiles.join("\n")]
-    .join("\n")
-    .includes(".rev/");
+  const revArtifactsExcluded = !reviewEvidenceIncludesRevArtifacts(evidence);
 
   const checks: ValidatorCheck[] = [
     {
@@ -83,6 +81,20 @@ export function buildValidators(args: {
   ];
 
   return { ok: checks.every((check) => check.status === "pass" || check.status === "skip"), checks };
+}
+
+function reviewEvidenceIncludesRevArtifacts(evidence: GitEvidence): boolean {
+  if (evidence.untrackedFiles.some((file) => file.startsWith(".rev/"))) return true;
+
+  const statusHasRevArtifact = evidence.status
+    .split(/\r?\n/)
+    .some((line) => /^\s*(?:[MADRCU?!]{1,2})\s+\.rev\//.test(line));
+  if (statusHasRevArtifact) return true;
+
+  return [evidence.stagedDiff, evidence.unstagedDiff, evidence.combinedDiff]
+    .join("\n")
+    .split(/\r?\n/)
+    .some((line) => /^(?:diff --git a\/\.rev\/|--- a\/\.rev\/|\+\+\+ b\/\.rev\/)/.test(line));
 }
 
 export async function writeValidators(cwd: string, report: ValidatorReport): Promise<void> {

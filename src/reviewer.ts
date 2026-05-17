@@ -279,11 +279,53 @@ function normalizeReview(input: Partial<ReviewJson>): ReviewJson {
     summary: input.summary || "Reviewer did not provide a summary.",
     drift: input.drift,
     hallucination: input.hallucination,
-    findings: Array.isArray(input.findings) ? input.findings : [],
+    findings: Array.isArray(input.findings) ? input.findings.map(normalizeFinding) : [],
     next_steps: Array.isArray(input.next_steps) ? input.next_steps : [],
     recovery_prompt: input.recovery_prompt,
-    decision_paths: Array.isArray(input.decision_paths) ? input.decision_paths : [],
+    decision_paths: Array.isArray(input.decision_paths) ? input.decision_paths.map((path) => normalizeDecisionPath(path, input)).filter(Boolean) as DecisionPath[] : [],
   };
+}
+
+function normalizeFinding(input: unknown): ReviewFinding {
+  if (!input || typeof input !== "object") {
+    return {
+      severity: "low",
+      title: "Reviewer finding",
+      body: String(input || "Reviewer returned an empty finding."),
+    };
+  }
+  const finding = input as Partial<ReviewFinding> & { evidence?: string };
+  const severity = finding.severity === "critical" || finding.severity === "high" || finding.severity === "medium" || finding.severity === "low" ? finding.severity : "low";
+  return {
+    ...finding,
+    severity,
+    title: finding.title || "Reviewer finding",
+    body: finding.body || finding.evidence || "Reviewer did not provide finding details.",
+  };
+}
+
+function normalizeDecisionPath(input: unknown, review: Partial<ReviewJson>): DecisionPath | undefined {
+  if (!input) return undefined;
+  if (typeof input === "string") {
+    return makeDecisionPath({
+      kind: "review_note",
+      intent: review.goal_interpretation || "Review the Rev goal.",
+      observation: input,
+      decision: review.verdict === "approve" ? "Approve the run." : "Use this note while continuing the run.",
+      recovery: review.recovery_prompt || "Continue from the latest Rev report.",
+      tags: ["review-note"],
+    });
+  }
+  if (typeof input !== "object") return undefined;
+  const path = input as Partial<DecisionPath>;
+  return makeDecisionPath({
+    kind: path.kind || "review_path",
+    intent: path.intent || review.goal_interpretation || "Review the Rev goal.",
+    observation: path.observation || review.summary || "No observation provided.",
+    decision: path.decision || (review.verdict === "approve" ? "Approve the run." : "Continue the run."),
+    recovery: path.recovery || review.recovery_prompt || "Continue from the latest Rev report.",
+    tags: Array.isArray(path.tags) ? path.tags : [],
+  });
 }
 
 function summarizeGoal(goal: string): string {

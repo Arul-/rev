@@ -130,7 +130,7 @@ function buildMemoryEntry(args: {
 }
 
 function normalizeDecisionPaths(review: ReviewJson): DecisionPath[] {
-  return (review.decision_paths ?? []).map((path) => ({
+  return (review.decision_paths ?? []).filter((path) => path && typeof path === "object").map((path) => ({
     ...path,
     timestamp: path.timestamp || new Date().toISOString(),
     evidence: path.evidence || ".rev/report.md",
