@@ -1,8 +1,15 @@
 # Rev Codex Hook
 
-Rev ships with a project-local Codex Stop hook:
+Rev ships with a project-local Codex Stop hook. Install it in any project with:
+
+```bash
+rev init
+```
+
+That creates:
 
 ```text
+.rev/
 .codex/hooks.json
 .codex/hooks/rev-stop.mjs
 ```

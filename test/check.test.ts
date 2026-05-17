@@ -12,6 +12,7 @@ import { parseReviewJson } from "../src/reviewer";
 import { check } from "../src/check";
 import { searchDecisionPaths } from "../src/search";
 import { serve } from "../src/server";
+import { init } from "../src/init";
 
 let dir = "";
 
@@ -37,6 +38,53 @@ test("goal loading creates .rev/goal.md from an initial argument", async () => {
 
 test("missing goal fails clearly", async () => {
   await expect(loadGoal(dir)).rejects.toThrow("Missing .rev/goal.md");
+});
+
+test("init installs Rev config and Codex Stop hook idempotently", async () => {
+  const first = await init(dir);
+
+  expect(first).toContain("Initialized Rev");
+  expect(first).toContain(".rev/goal.md");
+  expect(first).toContain(".codex/hooks.json");
+  expect(first).toContain(".codex/hooks/rev-stop.mjs");
+  expect(existsSync(join(dir, ".rev", "config.json"))).toBe(true);
+  expect(existsSync(join(dir, ".codex", "hooks.json"))).toBe(true);
+
+  const hooks = JSON.parse(await readFile(join(dir, ".codex", "hooks.json"), "utf8"));
+  expect(hooks.hooks.Stop[0].hooks[0].command).toContain("rev-stop.mjs");
+
+  const second = await init(dir);
+  expect(second).toContain("Already present:");
+  expect(second).toContain(".rev/goal.md");
+});
+
+test("init preserves unrelated Codex hooks when installing Rev hook", async () => {
+  await mkdir(join(dir, ".codex"), { recursive: true });
+  await writeFile(join(dir, ".codex", "hooks.json"), JSON.stringify({
+    hooks: {
+      Stop: [
+        {
+          hooks: [
+            {
+              type: "command",
+              command: "echo existing",
+            },
+          ],
+        },
+      ],
+    },
+  }));
+
+  await init(dir);
+
+  const hooks = JSON.parse(await readFile(join(dir, ".codex", "hooks.json"), "utf8"));
+  const commands = JSON.stringify(hooks.hooks.Stop);
+  expect(commands).toContain("echo existing");
+  expect(commands).toContain("rev-stop.mjs");
+
+  await init(dir);
+  const second = await readFile(join(dir, ".codex", "hooks.json"), "utf8");
+  expect((second.match(/rev-stop\.mjs/g) || []).length).toBe(1);
 });
 
 test("git evidence excludes .rev artifacts and includes untracked text content", async () => {

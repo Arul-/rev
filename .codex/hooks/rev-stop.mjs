@@ -12,7 +12,7 @@ if (process.env.REV_HOOK_ACTIVE === "1" || input.stop_hook_active) {
 const cwd = typeof input.cwd === "string" ? input.cwd : process.cwd();
 const root = gitRoot(cwd);
 
-if (!root || !existsSync(join(root, "bin", "rev")) || !existsSync(join(root, ".rev", "goal.md"))) {
+if (!root || !existsSync(join(root, ".rev", "goal.md"))) {
   allow("Rev is not configured for this repository.");
 }
 
@@ -20,7 +20,8 @@ if (!looksLikeCompletion(input.last_assistant_message)) {
   allow("Assistant is not presenting the run as done.");
 }
 
-const result = spawnSync(join(root, "bin", "rev"), ["check"], {
+const revCommand = existsSync(join(root, "bin", "rev")) ? join(root, "bin", "rev") : "rev";
+const result = spawnSync(revCommand, ["check"], {
   cwd: root,
   env: { ...process.env, REV_HOOK_ACTIVE: "1" },
   encoding: "utf8",

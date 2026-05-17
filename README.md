@@ -1,6 +1,6 @@
 # Rev
 
-**Codex says "done." Rev checks whether the goal is actually done.**
+### **Codex says "done." Rev checks whether the goal is actually done.**
 
 Rev is a second-opinion gate for autonomous Codex `/goal` runs. When Codex is
 about to say "done," Rev can run automatically as a Codex Stop hook and compare
@@ -21,11 +21,14 @@ Recovery prompt: the exact prompt to continue if the run drifted
 
 ## Automatic Shape
 
-Rev has two parts:
+Rev has two parts, installed with one command:
 
 ```text
-Codex Stop hook -> rev check -> Rev inspector
+rev init -> Codex Stop hook -> rev check -> Rev inspector
 ```
+
+Run `rev init` in a project once. It creates `.rev/` and installs the
+project-local Codex hook under `.codex/`.
 
 When Codex is about to finish a `/goal` run, the Stop hook runs `rev check`.
 If Rev approves, Codex can stop. If Rev finds drift, the hook feeds Codex the
@@ -60,14 +63,17 @@ recovery prompt back into Codex when the run needs to continue.
 
 ```bash
 bun install
-bun test
-./bin/rev check "Build the smallest useful feature and verify it"
-./bin/rev serve
+./bin/rev init
 ```
 
-`rev serve` prints a local inspector URL. By default it uses
-`http://127.0.0.1:37887`; if that port is busy, Rev uses the next available
-port.
+Then open Codex in the repo and trust the hook once:
+
+```text
+/hooks
+```
+
+Now start your Codex `/goal`. Rev will run automatically when Codex tries to
+finish.
 
 For the prepared demo:
 
@@ -79,7 +85,7 @@ bun run demo
 
 ## How It Fits Codex `/goal`
 
-Use Rev as the final gate for an autonomous run. This repo includes a
+Use Rev as the final gate for an autonomous run. `rev init` installs a
 project-local Codex Stop hook in `.codex/hooks.json`.
 
 ```text
@@ -96,8 +102,8 @@ Codex asks you to review and trust new project hooks. In the Codex CLI, open:
 /hooks
 ```
 
-Trust the Rev Stop hook once for the repository. After that, the automatic gate
-runs whenever Codex presents a turn as complete.
+Trust the Rev Stop hook once for the repository. After that, the gate runs
+whenever Codex presents a turn as complete.
 
 Manual fallback:
 

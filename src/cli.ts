@@ -3,6 +3,7 @@ import { ensureRevDir } from "./fs";
 import { check } from "./check";
 import { serve } from "./server";
 import { formatSearchResults, searchDecisionPaths } from "./search";
+import { init } from "./init";
 
 export async function main(argv: string[]): Promise<void> {
   const cwd = process.cwd();
@@ -10,8 +11,7 @@ export async function main(argv: string[]): Promise<void> {
 
   try {
     if (command === "init") {
-      await ensureRevDir(cwd);
-      console.log("Initialized .rev/");
+      console.log(await init(cwd));
       return;
     }
 
