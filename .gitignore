@@ -1,6 +1,9 @@
 node_modules/
 .DS_Store
 .env
+outputs/video-frames/
+outputs/rev-demo-narration.*
+outputs/rev-demo.mp4
 .rev/diff.patch
 .rev/staged.diff.patch
 .rev/unstaged.diff.patch
