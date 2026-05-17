@@ -77,6 +77,15 @@ Human comes back to a verdict, dashboard, and recovery prompt
 ./bin/rev search <query>
 ```
 
+For a live judging demo, run:
+
+```bash
+bun run demo
+```
+
+That script runs tests, runs `rev check`, prints the verdict, searches the
+approval decision path, and opens the local inspector.
+
 `rev check` is the main gate. It writes the review packet into `.rev/`.
 `rev serve` opens the file-backed inspector. If the default port is busy, Rev
 uses the next available port and prints the URL.
