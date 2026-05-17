@@ -57,6 +57,8 @@ For the prepared demo:
 bun run demo
 ```
 
+![Rev terminal demo](docs/assets/rev-terminal-field.png)
+
 ## How It Fits Codex `/goal`
 
 Use Rev as the final gate for an autonomous run:
