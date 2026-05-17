@@ -4,8 +4,6 @@ Rev is an automatic second-opinion hook for Codex `/goal`.
 
 **Codex says "done." Rev checks whether the goal is actually done.**
 
-That is the selling point.
-
 Autonomous coding agents can pass tests, write a confident final message, and
 still miss what the user asked for. Rev closes that trust gap by reviewing the
 original goal against the actual evidence: git diff, tests, deterministic
