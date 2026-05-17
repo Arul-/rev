@@ -13,6 +13,8 @@ validators, recent run memory, and a second-opinion reviewer.
 
 The output is not just a code review. It is a goal-satisfaction verdict:
 
+![Rev decision path demo](docs/assets/rev-decision-path.gif)
+
 ```text
 Goal satisfied: yes/no
 Drift: none/low/medium/high
