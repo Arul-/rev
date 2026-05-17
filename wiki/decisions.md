@@ -79,8 +79,8 @@ Reason:
 Memory entries should be compact and private by default: no raw diffs, no raw
 prompts, and no content from `<private>...</private>` blocks.
 
-The inspector idea is still valuable. Defer it until after `rev check` works,
-then consider `rev serve` for browsing run history.
+The inspector idea is still valuable, but it should stay file-backed and local
+until the CLI loop proves useful.
 
 ## 2026-05-17: Store Codex's Interpreted Goal
 
@@ -106,3 +106,16 @@ Reason:
 
 Store decision paths in `.rev/decisions.jsonl`. Show them in `rev serve` and
 support `rev search <query>`.
+
+## 2026-05-17: Ship File-Backed Inspector For Hackathon Demo
+
+Rev now includes `./bin/rev serve` for the first hackathon slice.
+
+Reason:
+- the demo needs a visible surface, not only generated Markdown files
+- a file-backed Bun server is enough to show the latest `.rev/` state
+- the inspector can render goal match, drift, validators, tests, recovery,
+  memory, and decision paths without adding a database or hosted service
+
+The dashboard remains deliberately local and simple. The source of truth is
+still the generated `.rev/` artifact set.

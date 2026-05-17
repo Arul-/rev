@@ -2,10 +2,12 @@
 
 Rev is a local Bun CLI.
 
-MVP command:
+Primary commands:
 
 ```bash
 ./bin/rev check
+./bin/rev serve
+./bin/rev search <query>
 ```
 
 Internal flow:
@@ -85,17 +87,20 @@ or roundabout way; Rev should preserve Codex's clear implementation-level
 reading of the request so the next reviewer can compare work against intent
 without replaying the whole conversation.
 
-## Future Inspector
+## Local Inspector
 
 `claude-mem` runs a local web inspector for human memory browsing. Rev should
-not build that in the first MVP, but the natural later command is:
+copy the useful product shape without copying the full stack:
 
 ```bash
 ./bin/rev serve
 ```
 
-It would show previous `rev check` runs, verdicts, validator failures, repeated
-findings, report links, and recovery prompts from `.rev/memory.jsonl`.
+The inspector is file-backed and reads generated `.rev/` artifacts directly. It
+shows current goal, interpreted goal, verdict, drift/hallucination state,
+validators, tests, recovery prompt, run history, and decision paths. It has no
+database, auth, hosted service, MCP server, or vector search in the hackathon
+slice.
 
 ## Decision Paths
 

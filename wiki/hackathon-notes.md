@@ -28,8 +28,25 @@ Codex edits code
 Rev runs ./bin/rev check
 Rev captures goal + diff + tests
 Reviewer produces .rev/report.md
-Human sees verdict and recovery prompt
+Rev serves http://127.0.0.1:37887
+Human sees verdict, drift, validators, decision path, and recovery prompt
 ```
+
+Demo commands:
+
+```bash
+bun test
+./bin/rev check
+./bin/rev serve
+./bin/rev search approval
+```
+
+Acceptance proof from dogfood:
+- `.rev/report.md` reported `Goal satisfied: yes`
+- all deterministic validators passed
+- `bun test` passed
+- `rev serve` has smoke coverage in `test/check.test.ts`
+- `rev search approval` returns a portable decision path
 
 Do not over-explain Portel, Tel, Photon, or MCP in the demo. Rev is the small
 visible wedge.
