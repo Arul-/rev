@@ -25,7 +25,8 @@ export async function serve(cwd: string, config: RevConfig): Promise<{ server: S
       });
       return { server, url: `http://127.0.0.1:${port}` };
     } catch (error) {
-      if (String(error).includes("EADDRINUSE")) {
+      const message = String(error);
+      if (message.includes("EADDRINUSE") || message.includes("in use")) {
         port += 1;
         continue;
       }

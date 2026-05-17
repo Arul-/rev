@@ -17,10 +17,10 @@ summarize_report() {
   bun -e '
     const report = await Bun.file(".rev/report.md").text();
     const wanted = [
-      /^Goal satisfied:/m,
-      /^Verdict:/m,
-      /^- Level:/m,
-      /^No recovery prompt needed\\./m,
+      /^Goal satisfied:.*$/m,
+      /^Verdict:.*$/m,
+      /^- Level:.*$/m,
+      /^No recovery prompt needed\\..*$/m,
     ];
     for (const pattern of wanted) {
       const match = report.match(pattern);
