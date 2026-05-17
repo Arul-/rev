@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/rev-stop.mjs\"",
+            "timeout": 600,
+            "statusMessage": "Rev is checking whether the goal is actually done"
+          }
+        ]
+      }
+    ]
+  }
+}

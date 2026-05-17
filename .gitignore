@@ -17,3 +17,4 @@ outputs/rev-demo.mp4
 .rev/recovery-prompt.md
 .rev/memory.jsonl
 .rev/decisions.jsonl
+.rev/hook-output.txt

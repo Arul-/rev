@@ -2,8 +2,9 @@
 
 **Codex says "done." Rev checks whether the goal is actually done.**
 
-Rev is a second-opinion CLI for autonomous Codex `/goal` runs. It compares the
-original goal with the actual evidence in the repo: git diff, test output,
+Rev is a second-opinion gate for autonomous Codex `/goal` runs. When Codex is
+about to say "done," Rev can run automatically as a Codex Stop hook and compare
+the original goal with the actual evidence in the repo: git diff, test output,
 deterministic validators, recent run memory, and a reviewer verdict.
 
 Agents can pass tests, write a confident final message, and still miss what the
@@ -17,6 +18,23 @@ Drift: none/low/medium/high
 Decision path: Intent -> Observation -> Decision -> Recovery
 Recovery prompt: the exact prompt to continue if the run drifted
 ```
+
+## Automatic Shape
+
+Rev has two parts:
+
+```text
+Codex Stop hook -> rev check -> Rev inspector
+```
+
+When Codex is about to finish a `/goal` run, the Stop hook runs `rev check`.
+If Rev approves, Codex can stop. If Rev finds drift, the hook feeds Codex the
+recovery prompt and the run continues instead of ending with a false "done."
+
+Manual `./bin/rev check` still exists for debugging and non-hook environments,
+but the intended workflow is automatic.
+
+Hook details: [docs/hooks.md](docs/hooks.md)
 
 ## Why Rev Exists
 
@@ -35,8 +53,8 @@ Did the agent actually satisfy the user's goal?
 ```
 
 Rev answers that second question. It creates a review packet, asks a
-goal-aware reviewer for a verdict, stores a portable decision path, and writes a
-recovery prompt when the run needs to continue.
+goal-aware reviewer for a verdict, stores a portable decision path, and feeds a
+recovery prompt back into Codex when the run needs to continue.
 
 ## Quickstart
 
@@ -61,23 +79,31 @@ bun run demo
 
 ## How It Fits Codex `/goal`
 
-Use Rev as the final gate for an autonomous run:
+Use Rev as the final gate for an autonomous run. This repo includes a
+project-local Codex Stop hook in `.codex/hooks.json`.
 
 ```text
 1. Start Codex with /goal.
 2. Codex changes the repo.
-3. Run ./bin/rev check before accepting "done."
-4. If Rev rejects the run, paste .rev/recovery-prompt.md back into Codex.
+3. Codex tries to stop with "done."
+4. Rev runs automatically.
+5. If Rev rejects the run, Codex continues with Rev's recovery prompt.
 ```
 
-If your Codex environment supports finish/stop hooks, wire the hook to:
+Codex asks you to review and trust new project hooks. In the Codex CLI, open:
+
+```text
+/hooks
+```
+
+Trust the Rev Stop hook once for the repository. After that, the automatic gate
+runs whenever Codex presents a turn as complete.
+
+Manual fallback:
 
 ```bash
 ./bin/rev check
 ```
-
-Rev does not require a hook to be useful. The CLI and inspector work today as a
-manual final check.
 
 ## What `rev check` Does
 
