@@ -21,7 +21,7 @@ Reason:
 
 ## 2026-05-17: Use Codex Review As The First Reviewer
 
-Default reviewer command:
+Initial idea:
 
 ```bash
 codex review --uncommitted
@@ -33,3 +33,33 @@ Reason:
 - avoids building custom model plumbing before the behavior is proven
 
 Later reviewer backends can include Claude, Gemini, or a configured command.
+
+## 2026-05-17: Prefer Structured `codex exec` For MVP Review
+
+Updated default reviewer command:
+
+```bash
+codex exec -s read-only
+```
+
+Reason:
+- `codex review --uncommitted` is useful, but it is optimized for generic code
+  review.
+- Rev needs goal-aware output: goal satisfaction, validators, recovery prompt,
+  and JSON verdict.
+- `codex exec` lets Rev send a custom prompt and ask for structured output.
+
+Rev can still support `codex review --uncommitted` as a backend later.
+
+## 2026-05-17: Add Deterministic Validators
+
+Rev should not rely only on an LLM reviewer.
+
+Validators create mechanical evidence before review:
+- goal present
+- inside git repo
+- reviewable changes exist
+- tests ran or were explicitly skipped
+- `.rev/` artifacts excluded
+
+The reviewer then interprets those facts against the goal.

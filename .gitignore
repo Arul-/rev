@@ -2,6 +2,12 @@ node_modules/
 .DS_Store
 .env
 .rev/diff.patch
+.rev/staged.diff.patch
+.rev/unstaged.diff.patch
+.rev/status.txt
+.rev/untracked-files.txt
 .rev/test-output.txt
 .rev/report.md
+.rev/review.json
+.rev/validators.json
 .rev/recovery-prompt.md

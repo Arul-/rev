@@ -12,6 +12,8 @@ and update it when they learn something useful.
 - [Testing](testing.md) — how to test Rev and what scenarios matter.
 - [Hackathon Notes](hackathon-notes.md) — demo story, track fit, and judging
   notes.
+- [Codex Review Research](research-codex-review.md) — prior art from Codex
+  review, adversarial review, rescue, and stop gates.
 
 ## Update Rule
 

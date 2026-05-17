@@ -1,4 +1,6 @@
 {
   "testCommand": "bun test",
-  "reviewCommand": "codex review --uncommitted"
+  "reviewCommand": "codex exec -s read-only",
+  "reviewMode": "goal",
+  "maxReviewBytes": 200000
 }

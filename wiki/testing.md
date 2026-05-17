@@ -13,6 +13,9 @@ Test:
 - diff capture
 - test command success
 - test command failure
+- validator JSON
+- structured review JSON parsing
+- fallback when structured parsing fails
 - report writing
 - recovery prompt writing
 
